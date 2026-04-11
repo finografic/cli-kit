@@ -6,59 +6,14 @@ Next steps, recommended additions, and speculative ideas for the kit. Divided in
 
 ---
 
-## 🟢 Near-term — Obvious Next Modules
+## ✅ Shipped — v0.1.0
 
-These are already referenced in the planning doc or blocked on by at least one consumer.
-
-### `paths` module
-
-Two utilities already present in multiple repos, ready to promote:
-
-```ts
-// @finografic/cli-kit/paths
-export function tildeify(absPath: string): string
-// Converts /Users/justin/... to ~/... for display. No project-specific knowledge needed.
-
-export function resolveTargetDir(cwd: string, pathArg?: string): string
-// Used identically in genx and gli — resolves a user-supplied path arg relative to cwd,
-// defaulting to cwd when omitted.
-```
-
-**Trigger:** When a second repo imports either of these from the kit (currently both are inlined per-project).
-
-### `xdg` module
-
-For CLIs that persist config between runs (`gli`, any future config-driven tool):
-
-```ts
-// @finografic/cli-kit/xdg
-export function getConfigPath(appName: string): string    // XDG_CONFIG_HOME / ~/.config/{app}/
-export function getCachePath(appName: string): string     // XDG_CACHE_HOME  / ~/.cache/{app}/
-export async function readJsonc<T>(filePath: string): Promise<T | null>
-export async function writeJsonc(filePath: string, data: unknown): Promise<void>
-```
-
-Depends on `jsonc-parser` (already in `genx`). The `readJsonc` / `writeJsonc` pair is currently copy-pasted across repos — the XDG wrapper makes it a first-class module.
-
-### `render-help` — `renderSection` utility
-
-Expose the internal section-building logic as a standalone export. Useful for rendering ad-hoc help-style output (e.g. a `status` command that shows a labelled key/value table):
-
-```ts
-export function renderSection(title: string, rows: Array<{ label: string; value: string }>): void
-```
-
-### `flow` — Positional arg extraction helpers
-
-Commands increasingly need to extract typed positional args from `flow.args`. Two helpers would eliminate repeated boilerplate:
-
-```ts
-export function requireArg(args: string[], index: number, name: string): string
-// Returns args[index] or exits with a clear error message if missing.
-
-export function optionalArg(args: string[], index: number): string | undefined
-// Returns args[index] or undefined.
-```
+| Module         | Export(s)                                                  | Notes                                |
+| -------------- | ---------------------------------------------------------- | ------------------------------------ |
+| `/paths`       | `tildeify`, `resolveTargetDir`                             | New subpath                          |
+| `/xdg`         | `getConfigPath`, `getCachePath`, `readJsonc`, `writeJsonc` | New subpath; adds `jsonc-parser` dep |
+| `/render-help` | `renderSection`                                            | Added to existing subpath            |
+| `/flow`        | `requireArg`, `optionalArg`                                | Added to existing subpath            |
 
 ---
 
