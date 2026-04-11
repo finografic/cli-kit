@@ -1,4 +1,5 @@
 import * as clack from '@clack/prompts';
+import pc from 'picocolors';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -79,6 +80,21 @@ export interface PromptAutocompleteMultiSelectOpts<T> {
   initialValues?: T[];
   /** When true, always prompt even in yes-mode */
   required?: boolean;
+}
+
+// ─── Positional Arg Helpers ───────────────────────────────────────────────────
+
+export function requireArg(args: string[], index: number, name: string): string {
+  const value = args[index];
+  if (value === undefined) {
+    clack.log.error(`Missing required argument: ${pc.cyan(`<${name}>`)}`);
+    process.exit(1);
+  }
+  return value;
+}
+
+export function optionalArg(args: string[], index: number): string | undefined {
+  return args[index];
 }
 
 // ─── Flag Parsing ─────────────────────────────────────────────────────────────

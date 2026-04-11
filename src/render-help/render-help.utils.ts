@@ -128,3 +128,15 @@ export function renderCommandHelp({
 
   console.log(lines.join('\n'));
 }
+
+export function renderSection(title: string, rows: Array<{ label: string; value: string }>): void {
+  const lines: string[] = [];
+  lines.push('');
+  lines.push(pc.bold(title.toUpperCase()));
+  const maxLen = Math.max(...rows.map((r) => r.label.length));
+  for (const row of rows) {
+    lines.push(`  ${pc.cyan(row.label)}${' '.repeat(maxLen - row.label.length + 4)}${row.value}`);
+  }
+  lines.push('');
+  console.log(lines.join('\n'));
+}

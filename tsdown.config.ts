@@ -10,6 +10,8 @@ export default defineConfig({
     'tui': 'src/tui/index.ts',
     'prompts': 'src/prompts/index.ts',
     'commands': 'src/commands/index.ts',
+    'paths': 'src/paths/index.ts',
+    'xdg': 'src/xdg/index.ts',
   },
   format: ['esm'],
   dts: true,
