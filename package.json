@@ -35,6 +35,12 @@
   ],
   "exports": {
     ".": "./dist/index.mjs",
+    "./commands": "./dist/commands.mjs",
+    "./file-diff": "./dist/file-diff.mjs",
+    "./flow": "./dist/flow.mjs",
+    "./prompts": "./dist/prompts.mjs",
+    "./render-help": "./dist/render-help.mjs",
+    "./tui": "./dist/tui.mjs",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -96,7 +102,12 @@
     "typescript-eslint": "^8.51.0",
     "vitest": "^4.0.18"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@clack/core": "^1.2.0",
+    "@clack/prompts": "^1.2.0",
+    "diff": "^8.0.4",
+    "picocolors": "^1.1.1"
+  },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs,cjs}": [
       "oxfmt --no-error-on-unmatched-pattern",
