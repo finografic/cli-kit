@@ -38,6 +38,7 @@
     "./commands": "./dist/commands.mjs",
     "./file-diff": "./dist/file-diff.mjs",
     "./flow": "./dist/flow.mjs",
+    "./package-manager": "./dist/package-manager.mjs",
     "./paths": "./dist/paths.mjs",
     "./prompts": "./dist/prompts.mjs",
     "./render-help": "./dist/render-help.mjs",

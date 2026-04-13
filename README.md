@@ -29,15 +29,16 @@ Requires a `.npmrc` pointing `@finografic` packages at the GitHub registry:
 
 Each module is a standalone subpath import. Import only what you use.
 
-| Subpath                           | Purpose                                                                                   |
-| --------------------------------- | ----------------------------------------------------------------------------------------- |
-| `@finografic/cli-kit/flow`        | Flag parsing + full interactive resolution chain (yes-mode, `-y` fast-paths)              |
-| `@finografic/cli-kit/render-help` | `renderHelp()` and `renderCommandHelp()` with typed config objects                        |
-| `@finografic/cli-kit/file-diff`   | Per-file unified diff display + interactive write confirmation                            |
-| `@finografic/cli-kit/tui`         | Terminal layout primitives — padding, dividers, dynamic column widths, custom multiselect |
-| `@finografic/cli-kit/prompts`     | Thin clack wrapper with cancel handling — no `FlowContext` required                       |
-| `@finografic/cli-kit/commands`    | Shared `RunCommandParams` and `CommandHandler` types                                      |
-| `@finografic/cli-kit`             | Root barrel — re-exports `commands` types only                                            |
+| Subpath                               | Purpose                                                                                   |
+| ------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `@finografic/cli-kit/flow`            | Flag parsing + full interactive resolution chain (yes-mode, `-y` fast-paths)              |
+| `@finografic/cli-kit/render-help`     | `renderHelp()` and `renderCommandHelp()` with typed config objects                        |
+| `@finografic/cli-kit/file-diff`       | Per-file unified diff display + interactive write confirmation                            |
+| `@finografic/cli-kit/tui`             | Terminal layout primitives — padding, dividers, dynamic column widths, custom multiselect |
+| `@finografic/cli-kit/prompts`         | Thin clack wrapper with cancel handling — no `FlowContext` required                       |
+| `@finografic/cli-kit/commands`        | Shared `RunCommandParams` and `CommandHandler` types                                      |
+| `@finografic/cli-kit/package-manager` | Spawn pnpm with inherited stdio — `runPnpmInstall` and the generic `runPnpm` primitive    |
+| `@finografic/cli-kit`                 | Root barrel — re-exports `commands` types only                                            |
 
 ---
 
@@ -362,6 +363,40 @@ await commands[command]({ argv: args, cwd });
 ```
 
 For commands with subcommands, use a local `SubcommandHandler` registry inside the command orchestrator. See [docs/spec/CLI_KIT.md](/docs/spec/CLI_KIT.md) for the full subcommand pattern.
+
+---
+
+### `package-manager` — pnpm spawn helpers
+
+Low-level utilities for spawning pnpm as a child process with inherited stdio, so the user sees pnpm's output directly. Used by any command that needs to run `pnpm install` or `pnpm update` interactively.
+
+```ts
+import { runPnpm, runPnpmInstall } from '@finografic/cli-kit/package-manager';
+```
+
+#### `runPnpmInstall(cwd)`
+
+Run `pnpm install` in the given directory. Returns the exit code (`number | null`).
+
+```ts
+const code = await runPnpmInstall(process.cwd());
+if (code !== 0) {
+  clack.log.error(`pnpm install exited with code ${code ?? 'unknown'}`);
+  process.exit(code ?? 1);
+}
+clack.log.success('pnpm install finished');
+```
+
+#### `runPnpm(cwd, args)`
+
+Generic primitive — spawn pnpm with any arguments. `runPnpmInstall` is a convenience wrapper around this.
+
+```ts
+// pnpm update @finografic/deps-policy --latest
+const code = await runPnpm(genxRoot, ['update', '@finografic/deps-policy', '--latest']);
+```
+
+Both functions use `stdio: 'inherit'` so pnpm's output streams directly to the terminal. On Windows, the call is wrapped in a shell automatically.
 
 ---
 
