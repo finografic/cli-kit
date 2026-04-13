@@ -13,7 +13,7 @@
 - Keep imports sorted; let Prettier handle JSX formatting.
 - Document significant changes; add date tags in docs.
 
-## Project-Specific Rules
+## Rules — Project-Specific
 
 Project-specific rules live in `.github/instructions/project/*.instructions.md`
 
