@@ -23,6 +23,9 @@ importers:
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
+      strip-ansi:
+        specifier: ^7.2.0
+        version: 7.2.0
     devDependencies:
       '@commitlint/cli':
         specifier: ^20.2.0

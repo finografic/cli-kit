@@ -8,6 +8,7 @@ export default defineConfig({
     'render-help': 'src/render-help/index.ts',
     'file-diff': 'src/file-diff/index.ts',
     'tui': 'src/tui/index.ts',
+    'tui/table': 'src/tui/table/index.ts',
     'prompts': 'src/prompts/index.ts',
     'commands': 'src/commands/index.ts',
     'package-manager': 'src/package-manager/index.ts',

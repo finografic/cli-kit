@@ -20,7 +20,20 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "commands": ["./src/commands/index.ts"],
+      "commands/*": ["./src/commands/*"],
+      "file-diff/*": ["./src/file-diff/*"],
+      "flow/*": ["./src/flow/*"],
+      "help/*": ["./src/render-help/*"],
+      "packages/*": ["./src/package-manager/*"],
+      "paths/*": ["./src/paths/*"],
+      "prompts/*": ["./src/prompts/*"],
+      "tui/*": ["./src/tui/*"],
+      "types/*": ["./src/types/*"],
+      "xdg/*": ["./src/xdg/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
