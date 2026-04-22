@@ -50,8 +50,6 @@
   "scripts": {
     "---------- DEV_AND_BUILD": "---------------------------------------------",
     "dev": "tsdown --watch",
-    "dev:cli": "NODE_ENV=development tsx src/cli.ts --",
-    "dev:feature": "tsx --tsconfig tsconfig.scripts.json scripts/new-feature.ts",
     "link": "pnpm build && pnpm link --global",
     "unlink": "pnpm unlink --global",
     "build": "tsdown",
