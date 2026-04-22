@@ -25,3 +25,8 @@ export interface ColumnDef<T> {
    */
   offset?: number;
 }
+
+export interface TableInstance<T> {
+  columns: { width: number; align: 'left' | 'right' }[];
+  render: (row: T) => string;
+}

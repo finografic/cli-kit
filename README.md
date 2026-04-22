@@ -1,7 +1,5 @@
 # @finografic/cli-kit
 
-📅 Apr 11, 2026
-
 > Composable CLI primitives for building consistent terminal tools across the `@finografic` ecosystem.
 
 - Single hard dependency for every `@finografic` CLI package
