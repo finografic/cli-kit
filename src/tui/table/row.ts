@@ -1,8 +1,8 @@
-import type { Column } from './table.types.js';
+import type { ColumnProps } from 'types/table.types.js';
 
 import { padLeft, padRight } from './padding.js';
 
-export function renderRow(values: string[], columns: Column[]): string {
+export function renderRow(values: string[], columns: ColumnProps[]): string {
   return values
     .map((val, i) => {
       const col = columns[i];

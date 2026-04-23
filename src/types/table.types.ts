@@ -1,8 +1,3 @@
-export interface Column {
-  width: number;
-  align: ColumnAlign;
-}
-
 export type ColumnAlign = 'left' | 'right';
 
 export interface ColumnDef<T> {
@@ -26,7 +21,12 @@ export interface ColumnDef<T> {
   offset?: number;
 }
 
+export interface ColumnProps {
+  width: number;
+  align: ColumnAlign;
+}
+
 export interface TableInstance<T> {
-  columns: { width: number; align: 'left' | 'right' }[];
+  columns: ColumnProps[];
   render: (row: T) => string;
 }

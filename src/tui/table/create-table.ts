@@ -1,14 +1,9 @@
-import type { Column, ColumnDef } from './table.types.js';
+import type { ColumnDef, TableInstance } from 'types/table.types.js';
 
 import { renderRow } from './row.js';
 import { computeColumnWidths } from './width.js';
 
-export interface Table<T> {
-  columns: Column[];
-  render: (row: T) => string;
-}
-
-export function createTable<T>(rows: T[], defs: ColumnDef<T>[]): Table<T> {
+export function createTable<T>(rows: T[], defs: ColumnDef<T>[]): TableInstance<T> {
   // 1. extract raw values (no formatting yet)
   const rawRows = rows.map((row) => defs.map((col) => col.get(row)));
 
