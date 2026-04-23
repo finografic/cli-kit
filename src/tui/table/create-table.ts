@@ -3,31 +3,35 @@ import type { ColumnDef, TableInstance } from 'types/table.types.js';
 import { renderRow } from './row.js';
 import { computeColumnWidths } from './width.js';
 
-export function createTable<T>(rows: T[], defs: ColumnDef<T>[]): TableInstance<T> {
+export function createTable<T>(
+  rows: T[],
+  columnDefs: ColumnDef<T>[],
+  options: { prefixWidth?: number } = {},
+): TableInstance<T> {
+  const prefixWidth = options.prefixWidth ?? 0;
+
   // 1. extract raw values (no formatting yet)
-  const rawRows = rows.map((row) => defs.map((col) => col.get(row)));
+  const rawRows = rows.map((row) => columnDefs.map((col) => col.get(row)));
 
   // 2. compute widths
   const widths = computeColumnWidths(rawRows);
 
   // 3. build columns config
-  const columns = defs.map((def, i) => ({
-    width: widths[i] + (def.offset ?? 0),
-    align: def.align ?? 'left',
+  const columns = columnDefs.map((col, i) => ({
+    width: widths[i] + (col.offset ?? 0) + (i === 0 ? prefixWidth : 0), // 👈 KEY LINE
+    align: col.align ?? 'left',
   }));
-
-  // 4. render function (this is the key)
-  function render(row: T): string {
-    const values = defs.map((def, _i) => {
-      const raw = def.get(row);
-      return def.format ? def.format(raw, row) : raw;
-    });
-
-    return renderRow(values, columns);
-  }
 
   return {
     columns,
-    render,
+    render(row: T) {
+      return renderRow(
+        columnDefs.map((col) => {
+          const raw = col.get(row);
+          return col.format ? col.format(raw, row) : raw;
+        }),
+        columns,
+      );
+    },
   };
 }
