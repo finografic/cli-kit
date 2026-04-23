@@ -8,30 +8,29 @@ export function createTable<T>(
   columnDefs: ColumnDef<T>[],
   options: { prefixWidth?: number } = {},
 ): TableInstance<T> {
-  const prefixWidth = options.prefixWidth ?? 0;
+  const prefix = ' '.repeat(options.prefixWidth ?? 0);
 
-  // 1. extract raw values (no formatting yet)
   const rawRows = rows.map((row) => columnDefs.map((col) => col.get(row)));
 
-  // 2. compute widths
   const widths = computeColumnWidths(rawRows);
 
-  // 3. build columns config
   const columns = columnDefs.map((col, i) => ({
-    width: widths[i] + (col.offset ?? 0) + (i === 0 ? prefixWidth : 0), // 👈 KEY LINE
+    width: widths[i] + (col.offset ?? 0),
     align: col.align ?? 'left',
   }));
 
   return {
     columns,
     render(row: T) {
-      return renderRow(
-        columnDefs.map((col) => {
-          const raw = col.get(row);
-          return col.format ? col.format(raw, row) : raw;
-        }),
-        columns,
-      );
+      const values = columnDefs.map((col) => {
+        const raw = col.get(row);
+        return col.format ? col.format(raw, row) : raw;
+      });
+
+      const line = renderRow(values, columns);
+
+      // 👇 THIS is the correct fix
+      return prefix + line;
     },
   };
 }
