@@ -7,14 +7,14 @@ type PicoColors = Extract<
 
 type PicocolorsBright = Extract<
   keyof PicocolorsColors,
-  | 'blackBright' |
-  'redBright' |
-  'greenBright' |
-  'yellowBright' |
-  'blueBright' |
-  'magentaBright' |
-  'cyanBright' |
-  'whiteBright'
+  | 'blackBright'
+  | 'redBright'
+  | 'greenBright'
+  | 'yellowBright'
+  | 'blueBright'
+  | 'magentaBright'
+  | 'cyanBright'
+  | 'whiteBright'
 >;
 
 export type PicoColor = PicoColors | PicocolorsBright;
