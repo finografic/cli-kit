@@ -1,6 +1,6 @@
-import type { ColumnDef } from 'types/table.types.js';
+import { stringWidth } from 'tui/padding.js';
 
-import { stringWidth } from '../padding.js';
+import type { ColumnDef } from 'types/table.types.js';
 
 export function computeColumnWidths<T>(data: T[], columnDefs: ColumnDef<T>[]): number[] {
   return columnDefs.map((col) => {

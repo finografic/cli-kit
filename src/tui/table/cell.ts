@@ -1,6 +1,6 @@
-import type { ColumnLayout } from 'types/table.types.js';
+import { padLeft, padRight } from 'tui/padding.js';
 
-import { padLeft, padRight } from '../padding.js';
+import type { ColumnLayout } from 'types/table.types.js';
 
 export function formatCell(value: string, col: ColumnLayout): string {
   const padL = col.padding?.left ?? 0;
