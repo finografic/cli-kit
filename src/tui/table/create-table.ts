@@ -1,4 +1,4 @@
-import type { ColumnDef, TableInstance } from 'types/table.types.js';
+import type { ColumnDef, ColumnLayout, TableInstance } from 'types/table.types.js';
 
 import { renderRow } from './row.js';
 import { computeColumnWidths } from './width.js';
@@ -6,31 +6,31 @@ import { computeColumnWidths } from './width.js';
 export function createTable<T>(
   rows: T[],
   columnDefs: ColumnDef<T>[],
-  options: { prefixWidth?: number } = {},
+  options: { gap?: number } = {},
 ): TableInstance<T> {
-  const prefix = ' '.repeat(options.prefixWidth ?? 0);
+  const gap = options.gap ?? 2;
 
   const rawRows = rows.map((row) => columnDefs.map((col) => col.get(row)));
+  const dataWidths = computeColumnWidths(rawRows);
 
-  const widths = computeColumnWidths(rawRows);
-
-  const columns = columnDefs.map((col, i) => ({
-    width: widths[i] + (col.offset ?? 0),
+  const columns: ColumnLayout[] = columnDefs.map((col, i) => ({
+    width: dataWidths[i] + (col.padding?.left ?? 0) + (col.padding?.right ?? 0),
     align: col.align ?? 'left',
+    padding: col.padding,
   }));
+
+  const totalWidth = columns.reduce((acc, col) => acc + col.width, 0) + (columns.length - 1) * gap;
 
   return {
     columns,
-    render(row: T) {
+    totalWidth,
+    gap,
+    renderRow(row: T) {
       const values = columnDefs.map((col) => {
         const raw = col.get(row);
         return col.format ? col.format(raw, row) : raw;
       });
-
-      const line = renderRow(values, columns);
-
-      // 👇 THIS is the correct fix
-      return prefix + line;
+      return renderRow(values, columns, gap);
     },
   };
 }

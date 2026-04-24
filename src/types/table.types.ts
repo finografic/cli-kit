@@ -1,32 +1,30 @@
 export type ColumnAlign = 'left' | 'right';
 
-export interface ColumnDef<T> {
-  key: string;
-
-  align?: ColumnAlign;
-
-  /**
-   * Extract raw value from row
-   */
-  get: (row: T) => string;
-
-  /**
-   * Optional formatter (color, etc.)
-   */
-  format?: (value: string, row: T) => string;
-
-  /**
-   * Optional extra width offset (like your +5)
-   */
-  offset?: number;
+export interface ColumnPadding {
+  left?: number;
+  right?: number;
 }
 
-export interface ColumnProps {
+export interface ColumnDef<T> {
+  key: string;
+  label?: string;
+  align?: ColumnAlign;
+  /** Extra whitespace injected inside the column cell (left/right of content). Increases column width. */
+  padding?: ColumnPadding;
+  get: (row: T) => string;
+  format?: (value: string, row: T) => string;
+}
+
+export interface ColumnLayout {
   width: number;
   align: ColumnAlign;
+  padding?: ColumnPadding;
 }
 
 export interface TableInstance<T> {
-  columns: ColumnProps[];
-  render: (row: T) => string;
+  columns: ColumnLayout[];
+  /** Total rendered width: sum of column widths + (n − 1) × gap. */
+  totalWidth: number;
+  gap: number;
+  renderRow: (row: T) => string;
 }
