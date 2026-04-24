@@ -15,11 +15,4 @@ export const TUI_DEFAULTS = {
     /** Extra padding added to the longest version string. */
     extraPad: 1,
   },
-  multiselect: {
-    /**
-     * Extra padding added to the longest name among the selectable rows. Sized independently from the table
-     * so the column fits the visible subset.
-     */
-    nameExtraPad: 2,
-  },
 } as const;
