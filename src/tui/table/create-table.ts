@@ -4,14 +4,13 @@ import { renderRow } from './row.js';
 import { computeColumnWidths } from './width.js';
 
 export function createTable<T>(
-  rows: T[],
+  data: T[],
   columnDefs: ColumnDef<T>[],
   options: { gap?: number } = {},
 ): TableInstance<T> {
   const gap = options.gap ?? 2;
 
-  const rawRows = rows.map((row) => columnDefs.map((col) => col.get(row)));
-  const dataWidths = computeColumnWidths(rawRows);
+  const dataWidths = computeColumnWidths<T>(data, columnDefs);
 
   const columns: ColumnLayout[] = columnDefs.map((col, i) => ({
     width: dataWidths[i] + (col.padding?.left ?? 0) + (col.padding?.right ?? 0),
@@ -23,14 +22,8 @@ export function createTable<T>(
 
   return {
     columns,
-    totalWidth,
+    renderRow: (row: T) => renderRow<T>(row, columns, columnDefs, gap),
     gap,
-    renderRow(row: T) {
-      const values = columnDefs.map((col) => {
-        const raw = col.get(row);
-        return col.format ? col.format(raw, row) : raw;
-      });
-      return renderRow(values, columns, gap);
-    },
+    totalWidth,
   };
 }

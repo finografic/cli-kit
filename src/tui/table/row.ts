@@ -1,8 +1,18 @@
-import type { ColumnLayout } from 'types/table.types.js';
+import type { ColumnDef, ColumnLayout } from 'types/table.types.js';
 
 import { padLeft, padRight } from './padding.js';
 
-export function renderRow(values: string[], columns: ColumnLayout[], gap: number = 2): string {
+export function renderRow<T>(
+  row: T,
+  columns: ColumnLayout[],
+  columnDefs: ColumnDef<T>[],
+  gap: number = 2,
+): string {
+  const values = columnDefs.map((col) => {
+    const raw = col.get(row);
+    return col.format ? col.format(raw, row) : raw;
+  });
+
   return values
     .map((val, i) => {
       const col = columns[i];
