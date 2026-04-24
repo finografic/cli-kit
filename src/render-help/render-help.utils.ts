@@ -129,6 +129,18 @@ export function renderCommandHelp({
   console.log(lines.join('\n'));
 }
 
+export async function withHelp(
+  argv: string[],
+  config: CommandHelpConfig,
+  run: () => void | Promise<void>,
+): Promise<void> {
+  if (argv.includes('--help') || argv.includes('-h')) {
+    renderCommandHelp(config);
+    return;
+  }
+  await run();
+}
+
 export function renderSection(title: string, rows: Array<{ label: string; value: string }>): void {
   const lines: string[] = [];
   lines.push('');

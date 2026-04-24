@@ -1,4 +1,4 @@
-export { renderCommandHelp, renderHelp, renderSection } from './render-help.utils.js';
+export { renderCommandHelp, renderHelp, renderSection, withHelp } from './render-help.utils.js';
 export type {
   CommandHelpConfig,
   CommandHelpSection,

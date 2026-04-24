@@ -10,7 +10,7 @@ export function createTable<T>(
 ): TableInstance<T> {
   const gap = options.gap ?? 2;
 
-  const dataWidths = computeColumnWidths<T>(data, columnDefs);
+  const dataWidths = computeColumnWidths(data, columnDefs);
 
   const columns: ColumnLayout[] = columnDefs.map((col, i) => ({
     width: dataWidths[i] + (col.padding?.left ?? 0) + (col.padding?.right ?? 0),
@@ -22,8 +22,14 @@ export function createTable<T>(
 
   return {
     columns,
-    renderRow: (row: T) => renderRow<T>(row, columns, columnDefs, gap),
     gap,
     totalWidth,
+    renderRow(row: T) {
+      const values = columnDefs.map((col) => {
+        const raw = col.get(row);
+        return col.format ? col.format(raw, row) : raw;
+      });
+      return renderRow(values, columns, gap);
+    },
   };
 }

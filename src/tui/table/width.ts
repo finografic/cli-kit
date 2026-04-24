@@ -1,10 +1,6 @@
-import stripAnsi from 'strip-ansi';
+import type { ColumnDef } from 'types/table.types.js';
 
-import type { ColumnDef } from 'types/table.types';
-
-export function stringWidth(value: string): number {
-  return stripAnsi(value).length;
-}
+import { stringWidth } from '../padding.js';
 
 export function computeColumnWidths<T>(data: T[], columnDefs: ColumnDef<T>[]): number[] {
   return columnDefs.map((col) => {
