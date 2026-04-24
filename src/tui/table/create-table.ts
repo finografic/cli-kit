@@ -1,3 +1,5 @@
+import pc from 'picocolors';
+
 import type { ColumnDef, ColumnLayout, TableInstance } from 'types/table.types.js';
 
 import { renderRow } from './row.js';
@@ -20,6 +22,8 @@ export function createTable<T>(
 
   const totalWidth = columns.reduce((acc, col) => acc + col.width, 0) + (columns.length - 1) * gap;
 
+  const labels = columnDefs.map((col) => col.label ?? col.key);
+
   return {
     columns,
     gap,
@@ -30,6 +34,9 @@ export function createTable<T>(
         return col.format ? col.format(raw, row) : raw;
       });
       return renderRow(values, columns, gap);
+    },
+    renderHeaders() {
+      return pc.dim(renderRow(labels, columns, gap));
     },
   };
 }

@@ -24,6 +24,7 @@ export interface ColumnLayout {
 export interface TableInstance<T> {
   columns: ColumnLayout[];
   renderRow: (row: T) => string;
+  renderHeaders: () => string;
   gap: number;
   /** Total rendered width: sum of column widths + (n − 1) × gap. */
   totalWidth: number;
