@@ -175,7 +175,19 @@ export const deployHelp: CommandHelpConfig = {
 };
 ```
 
-Every command checks `--help` / `-h` as its first action and calls `renderCommandHelp(deployHelp)`.
+#### `withHelp` — help guard wrapper
+
+Eliminates the repeated `if (argv.includes('--help')) { renderCommandHelp(help); return; }` pattern. Wrap the entire command body:
+
+```ts
+import { withHelp } from '@finografic/cli-kit/render-help';
+
+export async function runDeployCommand(argv: string[]): Promise<void> {
+  return withHelp(argv, deployHelp, async () => {
+    // full command body here — only runs when --help is absent
+  });
+}
+```
 
 ---
 
@@ -205,56 +217,116 @@ The `state` object carries `yesAll: boolean` across iterations — once the user
 
 ---
 
-### `tui` — Terminal layout primitives
+### `tui` — Terminal layout and table primitives
 
-Utilities for building consistent table layouts and multiselect prompts. Column widths are computed from live data rather than hardcoded, so they adapt to long names and version strings at runtime.
+Utilities for building consistent table layouts, section headers, and multiselect prompts. Column widths are computed from live data (ANSI-aware) so they adapt automatically to content.
 
 ```ts
 import {
-  TUI_DEFAULTS,
-  padRight, padLeft,
-  createDivider,
-  computeNameWidth, computeVersionWidth,
+  column, createTable, formatCell, renderRow,
+  renderSectionTitle,
+  padRight, padLeft, stringWidth,
   multiselectLineBreak, isCancel,
 } from '@finografic/cli-kit/tui';
-```
-
-#### Column width computation
-
-Both compute functions are generic — they accept any type satisfying the constraint:
-
-```ts
-// T extends { name: string }
-const nameWidth = computeNameWidth(items);
-// narrower padding for the multiselect prompt
-const nameWidth = computeNameWidth(items, TUI_DEFAULTS.multiselect.nameExtraPad);
-
-// T extends { current: string; latest?: string | null; prefix: string }
-const versionWidth = computeVersionWidth(items);
+import type { ColumnDef, ColumnLayout, ColumnPadding, TableInstance, SectionTitleOptions } from '@finografic/cli-kit/tui';
 ```
 
 #### Table rendering
 
+Define columns with `column()`, create a table instance, and call `renderRow` per data item. Widths are computed from the full dataset using ANSI-aware `stringWidth`.
+
 ```ts
-console.log(`  ${padRight('Package', nameWidth)}${padRight('Current', versionWidth)}Latest`);
-console.log(createDivider(nameWidth + versionWidth + 10));
+import { column, createTable, renderSectionTitle } from '@finografic/cli-kit/tui';
+import type { ColumnDef } from '@finografic/cli-kit/tui';
+
+interface Pkg { name: string; version: string; latest: string }
+
+const columns: ColumnDef<Pkg>[] = [
+  column('name',    { label: 'Package', align: 'left',  padding: { right: 2 }, get: (p) => p.name }),
+  column('version', { label: 'Current', align: 'right',                        get: (p) => p.version }),
+  column('latest',  { label: 'Latest',  align: 'left',                         get: (p) => p.latest }),
+];
+
+const table = createTable(packages, columns, { gap: 2 });
+
+renderSectionTitle('Dependencies', table.totalWidth, { margin: '  ' });
+console.log('  ' + table.renderHeaders());
 
 for (const pkg of packages) {
-  console.log(`  ${padRight(pkg.name, nameWidth)}${padRight(pkg.current, versionWidth)}${pkg.latest ?? '—'}`);
+  console.log('  ' + table.renderRow(pkg));
 }
+```
+
+`TableInstance` properties:
+
+| Property          | Type             | Description                                |
+| ----------------- | ---------------- | ------------------------------------------ |
+| `columns`         | `ColumnLayout[]` | Computed column widths, alignment, padding |
+| `gap`             | `number`         | Gap chars between columns (default 2)      |
+| `totalWidth`      | `number`         | Full rendered width — use for dividers     |
+| `renderRow(row)`  | `(T) => string`  | Render one data row                        |
+| `renderHeaders()` | `() => string`   | Render column labels in dim styling        |
+
+`ColumnDef` options:
+
+| Option    | Type                     | Description                                               |
+| --------- | ------------------------ | --------------------------------------------------------- |
+| `key`     | `string`                 | Identifier                                                |
+| `label`   | `string?`                | Header label (falls back to `key` in `renderHeaders()`)   |
+| `align`   | `'left' \| 'right'`      | Cell alignment (default `'left'`)                         |
+| `padding` | `{ left?, right? }`      | Extra whitespace inside the cell, added to computed width |
+| `get`     | `(row: T) => string`     | Extract raw value from a row                              |
+| `format`  | `(value, row) => string` | Transform value before rendering (e.g. colorize)          |
+
+#### Section headers
+
+```ts
+import { renderSectionTitle } from '@finografic/cli-kit/tui';
+import type { SectionTitleOptions } from '@finografic/cli-kit/tui';
+
+// Default: title + divider both rendered in pc.dim
+renderSectionTitle('Dependencies', table.totalWidth, { margin: '   ' });
+
+// Override color (always wrapped in dim)
+renderSectionTitle('Warnings', table.totalWidth, { color: 'yellow', margin: '   ' });
+```
+
+`SectionTitleOptions`:
+
+| Option         | Type         | Default         | Description                           |
+| -------------- | ------------ | --------------- | ------------------------------------- |
+| `color`        | `PicoColor?` | `'dim'`         | Color applied to the title            |
+| `dividerColor` | `PicoColor?` | same as `color` | Color applied to the divider          |
+| `margin`       | `string?`    | `''`            | Prefix string prepended to both lines |
+| `dividerChar`  | `string?`    | `'─'`           | Character used to draw the divider    |
+
+#### Cell and row primitives
+
+```ts
+import { formatCell, renderRow, padLeft, padRight, stringWidth } from '@finografic/cli-kit/tui';
+
+// Low-level: format a single cell given a ColumnLayout
+const cell = formatCell('hello', { width: 10, align: 'left' });
+
+// Low-level: render a row from raw string values
+const row = renderRow(['a', 'b', 'c'], columns, gap);
+
+// ANSI-aware string width (for content containing color codes)
+const len = stringWidth(pc.green('hello')); // → 5
 ```
 
 #### `multiselectLineBreak`
 
-Like `@clack/prompts`'s `multiselect`, but the submit state renders selected items one per line instead of a comma-separated inline list — cleaner for long package lists:
+Like `@clack/prompts`'s `multiselect`, but the submit state renders selected items one per line instead of comma-separated — cleaner for long item lists:
 
 ```ts
 const result = await multiselectLineBreak({
   message: 'Select packages to update',
   options: packages.map((p) => ({
-    value: p,
-    label: p.name,
-    hint:  `${p.current} → ${p.latest}`,
+    value:        p,
+    label:        p.name,
+    hint:         `${p.current} → ${p.latest}`,
+    initialValue: false,
   })),
   required: true,
 });

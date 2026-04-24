@@ -15,7 +15,7 @@ This document is the authoritative technical reference for `@finografic/cli-kit`
 ├── /flow          — Flag parsing + prompt resolution chain (FlowContext)
 ├── /render-help   — Typed help page renderers (HelpConfig, CommandHelpConfig)
 ├── /file-diff     — Unified diff display + per-file write confirmation
-├── /tui           — Layout primitives, dynamic column widths, custom multiselect
+├── /tui           — Table system (createTable, ColumnDef, renderSectionTitle), padding, multiselect
 ├── /prompts       — Thin clack wrapper (no FlowContext, cancel-safe)
 ├── /commands      — RunCommandParams, CommandHandler, SubcommandHandler types
 └── /             — Root barrel: re-exports commands types only
@@ -198,6 +198,18 @@ Column alignment is computed from the longest label — no manual padding needed
 
 Renders a per-command detail page. Section rendering order: USAGE → SUBCOMMANDS → OPTIONS → EXAMPLES → REQUIREMENTS → HOW IT WORKS → custom sections.
 
+### `withHelp`
+
+```ts
+async function withHelp(
+  argv: string[],
+  config: CommandHelpConfig,
+  run: () => void | Promise<void>,
+): Promise<void>
+```
+
+Checks `argv` for `--help` / `-h`. If found, calls `renderCommandHelp(config)` and returns. Otherwise calls `run()` and awaits. Eliminates the repeated guard block at the top of every command function.
+
 ---
 
 ## Module: `file-diff`
@@ -243,43 +255,100 @@ Short-circuits immediately with `'skip'` if content is identical. If `state.yesA
 
 ## Module: `tui`
 
-**Source:** `src/tui/tui.utils.ts`, `src/tui/tui.constants.ts`, `src/tui/tui.multiselect.ts`
+**Source:** `src/tui/` — `padding.ts`, `section-title.ts`, `tui.multiselect.ts`, `table/`
 
-### Constants
+### Types
 
 ```ts
-const TUI_DEFAULTS = {
-  name:        { min: 28, extraPad: 6 },
-  version:     { min: 8,  extraPad: 1 },
-  multiselect: { nameExtraPad: 2 },
-} as const;
+type ColumnAlign = 'left' | 'right';
+
+interface ColumnPadding { left?: number; right?: number; }
+
+interface ColumnDef<T> {
+  key: string;
+  label?: string;         // falls back to key in renderHeaders()
+  align?: ColumnAlign;    // default: 'left'
+  padding?: ColumnPadding;
+  get: (row: T) => string;
+  format?: (value: string, row: T) => string;
+}
+
+interface ColumnLayout {
+  width: number;          // total cell width including padding
+  align: ColumnAlign;
+  padding?: ColumnPadding;
+}
+
+interface TableInstance<T> {
+  columns: ColumnLayout[];
+  gap: number;
+  totalWidth: number;     // sum of column widths + (n-1) * gap
+  renderRow: (row: T) => string;
+  renderHeaders: () => string; // dim-styled column labels
+}
 ```
 
-Adjust `TUI_DEFAULTS` centrally to tune column widths across all table and prompt renderers.
-
-### Layout utilities
+### `column`
 
 ```ts
+function column<T>(key: string, def: Omit<ColumnDef<T>, 'key'>): ColumnDef<T>
+```
+
+Helper to build a `ColumnDef` with the key inlined — avoids repeating the key twice.
+
+### `createTable`
+
+```ts
+function createTable<T>(
+  data: T[],
+  columnDefs: ColumnDef<T>[],
+  options?: { gap?: number },  // gap default: 2
+): TableInstance<T>
+```
+
+Computes column widths from the full dataset (ANSI-aware, using `stringWidth`), creates a `TableInstance`. Column width = `max(stringWidth(get(row)) for all rows) + padding.left + padding.right`. Returns a closure with `renderRow` and `renderHeaders` bound to the computed layout.
+
+**`renderRow(row)`** — extracts raw values via `col.get`, applies `col.format` if provided, then delegates to the layout primitives. Returns a pure content string (no leading margin).
+
+**`renderHeaders()`** — renders column labels (`col.label ?? col.key`) in the same layout, wrapped in `pc.dim`. Same widths/gap as data rows.
+
+### `renderSectionTitle`
+
+```ts
+interface SectionTitleOptions {
+  color?: PicoColor;        // default: 'dim' (always wrapped in pc.dim)
+  dividerColor?: PicoColor; // default: same as color
+  margin?: string;          // default: ''
+  dividerChar?: string;     // default: '─'
+}
+
+function renderSectionTitle(name: string, width: number, options?: SectionTitleOptions): void
+```
+
+Prints a section title and divider to stdout. Both lines are always wrapped in `pc.dim`; `color`/`dividerColor` apply an additional picocolors color on top. Designed to accept `table.totalWidth` directly.
+
+### `PicoColor`
+
+```ts
+type PicoColor =
+  | 'black' | 'red' | 'green' | 'yellow' | 'blue' | 'magenta' | 'cyan' | 'white' | 'gray'
+  | 'blackBright' | 'redBright' | 'greenBright' | 'yellowBright'
+  | 'blueBright' | 'magentaBright' | 'cyanBright' | 'whiteBright'
+```
+
+Exported from `src/types/color.types.ts`. Narrows color options to the picocolors palette — prevents passing arbitrary strings to `pc[color]`.
+
+### Layout primitives
+
+```ts
+function stringWidth(value: string): number   // ANSI-aware length (strips escape codes)
 function padLeft(value: string, width: number): string
 function padRight(value: string, width: number): string
-function createDivider(width: number): string   // dim ──── with 2-space indent
+function formatCell(value: string, col: ColumnLayout): string
+function renderRow(values: string[], columns: ColumnLayout[], gap?: number): string
 ```
 
-### Column width computation
-
-```ts
-function computeNameWidth<T extends { name: string }>(
-  entries: T[],
-  extraPad?: number,   // default: TUI_DEFAULTS.name.extraPad
-): number
-
-function computeVersionWidth<T extends { current: string; latest?: string | null; prefix: string }>(
-  entries: T[],
-  extraPad?: number,   // default: TUI_DEFAULTS.version.extraPad
-): number
-```
-
-Both functions floor the result at the respective `min` value, then add `extraPad`. They are generic — no domain-specific imports. The `prefix` field on the version constraint exists to support semver range prefixes (`^`, `~`, `>=`) in the "latest" column display.
+All padding is ANSI-aware — safe on coloured strings. `formatCell` is the single-cell layout primitive: applies `padding.left/right`, aligns content to `innerWidth = width - padL - padR`. `renderRow` is pure layout only — no data extraction or formatting.
 
 ### `multiselectLineBreak`
 
@@ -513,13 +582,15 @@ When migrating an existing `@finografic` CLI package to use `cli-kit`:
 
 ## Architectural Decisions
 
-| #   | Decision                                                          | Rationale                                                                     |
-| --- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| 1   | Multi-entrypoint library (subpaths) not a single barrel           | Tree-shaking, clear import intent, avoids name conflicts between modules      |
-| 2   | `cwd` required in `RunCommandParams`                              | Testable, explicit, no hidden `process.cwd()` reads                           |
-| 3   | `--help` handled inside each command, not in `cli.ts`             | Commands own their help content; `cli.ts` stays routing-only                  |
-| 4   | `flow` created in the command, not in `cli.ts`                    | `cli.ts` doesn't know each command's flag shape                               |
-| 5   | `prompts` module as `flow` subset                                 | Frictionless upgrade path — adding `-y` is two lines                          |
-| 6   | Generic constraints on `computeNameWidth` / `computeVersionWidth` | Reusable across any CLI's tabular data, not just package lists                |
-| 7   | `multiselectLineBreak` in `tui` (not `prompts`)                   | It's a rendering concern, not a flow/interaction concern                      |
-| 8   | Root barrel exports only `commands` types                         | Avoids name conflicts between `flow` and `prompts` (`PromptSelectOpts`, etc.) |
+| #   | Decision                                                             | Rationale                                                                            |
+| --- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 1   | Multi-entrypoint library (subpaths) not a single barrel              | Tree-shaking, clear import intent, avoids name conflicts between modules             |
+| 2   | `cwd` required in `RunCommandParams`                                 | Testable, explicit, no hidden `process.cwd()` reads                                  |
+| 3   | `--help` handled inside each command via `withHelp`, not in `cli.ts` | Commands own their help content; `cli.ts` stays routing-only                         |
+| 4   | `flow` created in the command, not in `cli.ts`                       | `cli.ts` doesn't know each command's flag shape                                      |
+| 5   | `prompts` module as `flow` subset                                    | Frictionless upgrade path — adding `-y` is two lines                                 |
+| 6   | `createTable` closes over data; `renderRow`/`formatCell` are pure    | Keeps formatting co-located with column defs while layout primitives stay composable |
+| 7   | All padding is ANSI-aware (`stringWidth` via `strip-ansi`)           | Colored values would misalign columns if `.length` were used instead                 |
+| 8   | `multiselectLineBreak` in `tui` (not `prompts`)                      | It's a rendering concern, not a flow/interaction concern                             |
+| 9   | Root barrel exports only `commands` types                            | Avoids name conflicts between `flow` and `prompts` (`PromptSelectOpts`, etc.)        |
+| 10  | `PicoColor` type derived from picocolors interface                   | Prevents passing arbitrary strings to `pc[color]`; stays in sync with picocolors     |

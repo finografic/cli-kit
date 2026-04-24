@@ -1,6 +1,6 @@
 # @finografic/cli-kit — Roadmap
 
-📅 Apr 11, 2026
+📅 Apr 24, 2026
 
 Next steps, recommended additions, and speculative ideas for the kit. Divided into three tiers: **Near-term** (clear need, low risk), **Mid-term** (good value, moderate effort), and **Galaxy-brained** (high upside, investigate before committing).
 
@@ -14,6 +14,16 @@ Next steps, recommended additions, and speculative ideas for the kit. Divided in
 | `/xdg`         | `getConfigPath`, `getCachePath`, `readJsonc`, `writeJsonc` | New subpath; adds `jsonc-parser` dep |
 | `/render-help` | `renderSection`                                            | Added to existing subpath            |
 | `/flow`        | `requireArg`, `optionalArg`                                | Added to existing subpath            |
+
+## ✅ Shipped — v0.3.x
+
+| Module         | Export(s)                                          | Notes                                                        |
+| -------------- | -------------------------------------------------- | ------------------------------------------------------------ |
+| `/tui`         | `column`, `createTable`, `formatCell`, `renderRow` | Full table system with generic `ColumnDef<T>`                |
+| `/tui`         | `renderSectionTitle`                               | Section title + divider, dim by default, margin-aware        |
+| `/tui`         | `stringWidth`, `padLeft`, `padRight`               | ANSI-aware; consolidated from two split implementations      |
+| `/render-help` | `withHelp`                                         | Help guard wrapper, eliminates per-command boilerplate       |
+| `types/`       | `PicoColor`                                        | Picocolors color string union, used in `SectionTitleOptions` |
 
 ---
 
@@ -34,21 +44,9 @@ export async function withSpinner<T>(
 
 Internally wraps `clack.spinner()`, starts/stops on success, calls `clack.log.error` and `process.exit(1)` on failure. The `errorMessage` callback lets callers produce friendly messages without a try-catch at every call site.
 
-### `tui` — `renderTable` helper
+### `tui` — table header row separator
 
-The column-width compute + padRight + divider pattern appears in every table-rendering command. A higher-level helper reduces it to a config object:
-
-```ts
-export function renderTable<T>(
-  rows: T[],
-  columns: Array<{
-    key: keyof T;
-    header: string;
-    width: (rows: T[]) => number;
-    format?: (value: T[keyof T], row: T) => string;
-  }>,
-): void
-```
+`renderHeaders()` currently returns a plain dim row. Adding an optional underline / separator line between headers and data rows would complete the visual pattern for multi-group tables.
 
 ### `tui` — `renderStatusBadge`
 
