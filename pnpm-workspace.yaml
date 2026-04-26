@@ -1,0 +1,2 @@
+overrides:
+  '@finografic/genx': link:../@finografic-genx
