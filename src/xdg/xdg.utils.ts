@@ -49,6 +49,16 @@ export function getCachePath(appName: string): string {
   return join(base, appName);
 }
 
+/**
+ * Parse a JSONC string (JSON with comments / trailing commas) into an object. Returns an empty object when
+ * the document is not an object (null, array, primitive).
+ */
+export function parseJsoncObject(raw: string): Record<string, unknown> {
+  const data = parse(raw) as unknown;
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) return {};
+  return data as Record<string, unknown>;
+}
+
 export async function readJsonc<T>(filePath: string): Promise<T | null> {
   try {
     const raw = await readFile(filePath, 'utf8');
