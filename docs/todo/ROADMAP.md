@@ -154,3 +154,8 @@ export function createDashboard(opts: {
 **Why it's interesting:** `gli` built this from scratch and it's genuinely reusable. Any monitoring-style CLI (`status`, `watch`, `tail`) would benefit. The pattern is proven.
 
 **The trade-off:** The live-render approach depends on terminal raw mode and ANSI escape sequences — meaningfully different from the one-shot clack flow. It might warrant its own peer dependency or a more opinionated abstraction. Start with extracting `gli`'s implementation verbatim, then generalise from a second consumer.
+
+## Next
+
+- Optional: clear remaining oxlint warnings (`typescript/array-type`, unnecessary assertions) in `src/flow`, `src/prompts`, and `src/tui`.
+- See [DONE_UNBLOCK_INSTALL.md](/docs/todo/DONE_UNBLOCK_INSTALL.md) for the install/toolchain unblock.
