@@ -509,7 +509,7 @@ pnpm install     # install deps + git hooks
 pnpm dev         # build in watch mode (tsdown --watch)
 pnpm build       # production build — 7 entry points
 pnpm typecheck   # tsc --noEmit
-pnpm lint        # eslint
+pnpm lint        # oxlint
 pnpm test:run    # vitest run
 ```
 

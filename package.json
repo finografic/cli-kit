@@ -2,7 +2,7 @@
   "name": "@finografic/cli-kit",
   "type": "module",
   "version": "1.4.0",
-  "packageManager": "pnpm@10.8.0",
+  "packageManager": "pnpm@11.21.0",
   "description": "Composable CLI primitives for building consistent terminal tools",
   "homepage": "https://github.com/finografic/cli-kit",
   "repository": {
@@ -50,16 +50,17 @@
   "scripts": {
     "---------- DEV_AND_BUILD": "---------------------------------------------",
     "dev": "tsdown --watch",
-    "link": "pnpm build && pnpm link --global",
-    "unlink": "pnpm unlink --global",
+    "link": "pnpm build && pnpm add -g .",
+    "unlink": "pnpm remove -g $npm_package_name",
     "build": "tsdown",
     "·········· TESTING": "···················································",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "·········· LINTING": "···················································",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "lint:ci": "oxlint --quiet",
     "lint:md": "md-lint",
     "lint:md:fix": "md-lint --fix",
     "·········· FORMATTING": "················································",
@@ -74,9 +75,8 @@
     "·········· REGISTRIES": "················································",
     "view:registry:github": "pnpm view @finografic/cli-kit --registry=https://npm.pkg.github.com",
     "·········· PACKAGES": "··················································",
-    "update:eslint-config": "pnpm update @finografic/eslint-config --latest",
     "update:md-lint": "pnpm update @finografic/md-lint --latest",
-    "update:oxfmt-config": "pnpm update @finografic/oxfmt-config --latest && pnpm update oxfmt --latest",
+    "update:oxc-config": "pnpm update @finografic/oxc-config --latest && pnpm update oxfmt --latest && pnpm update oxlint --latest",
     "update:deps:all": "pnpm update --latest",
     "·········· UTILS": "·····················································",
     "tsc:debug": "tsc --pretty --project tsconfig.json",
@@ -85,25 +85,19 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.2.0",
-    "@commitlint/config-conventional": "^20.2.0",
-    "@eslint/js": "^9.39.2",
-    "@finografic/eslint-config": "^9.18.4",
-    "@finografic/md-lint": "^0.4.5",
-    "@finografic/oxfmt-config": "^1.0.3",
-    "@stylistic/eslint-plugin": "^5.6.1",
-    "@types/node": "^24.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.51.0",
-    "@typescript-eslint/parser": "^8.51.0",
-    "eslint": "9.39.2",
-    "globals": "^17.3.0",
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
+    "@finografic/md-lint": "^0.16.6",
+    "@finografic/oxc-config": "^2.9.1",
+    "@types/node": "24.12.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.7",
-    "oxfmt": "^0.43.0",
-    "tsdown": "^0.20.3",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.51.0",
-    "vitest": "^4.0.18"
+    "lint-staged": "^17.3.0",
+    "oxfmt": "^0.63.0",
+    "oxlint": "^1.78.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "tsdown": "^0.22.14",
+    "typescript": "7.0.2",
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "@clack/core": "^1.2.0",
@@ -116,7 +110,7 @@
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs,cjs}": [
       "oxfmt --no-error-on-unmatched-pattern",
-      "eslint --fix"
+      "oxlint --fix --no-error-on-unmatched-pattern"
     ],
     "*.md": [
       "oxfmt --no-error-on-unmatched-pattern",
@@ -125,5 +119,8 @@
     "*.{json,jsonc,yml,yaml,toml}": [
       "oxfmt --no-error-on-unmatched-pattern"
     ]
+  },
+  "engines": {
+    "node": ">=24.19.0"
   }
 }

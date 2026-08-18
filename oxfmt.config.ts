@@ -7,7 +7,7 @@ import {
   markdown,
   sorting,
   typescript,
-} from '@finografic/oxfmt-config';
+} from '@finografic/oxc-config/oxfmt';
 import { defineConfig } from 'oxfmt';
 
 export default defineConfig({

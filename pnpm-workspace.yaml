@@ -1,2 +1,9 @@
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
+
+minimumReleaseAgeExclude:
+  - '@finografic/oxc-config@2.9.0 || 2.9.1'
+
 overrides:
   '@finografic/genx': link:../@finografic-genx

@@ -20,7 +20,6 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".",
     "paths": {
       "commands": ["./src/commands/index.ts"],
       "commands/*": ["./src/commands/*"],

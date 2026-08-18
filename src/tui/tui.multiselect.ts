@@ -24,7 +24,7 @@ export interface MultiselectOption<T> {
 
 export interface MultiselectOpts<T> {
   message: string;
-  options: MultiselectOption<T>[];
+  options: Array<MultiselectOption<T>>;
   initialValues?: T[];
   required?: boolean;
   maxItems?: number;
@@ -62,8 +62,8 @@ export async function multiselectLineBreak<T>(opts: MultiselectOpts<T>): Promise
   const required = opts.required ?? true;
 
   return new MultiSelectPrompt({
-    options: opts.options as { value: unknown; disabled?: boolean }[],
-    initialValues: opts.initialValues as unknown[] | undefined,
+    options: opts.options,
+    initialValues: opts.initialValues,
     required,
     validate(value) {
       if (required && (value === undefined || value.length === 0)) {
@@ -71,7 +71,7 @@ export async function multiselectLineBreak<T>(opts: MultiselectOpts<T>): Promise
       }
     },
     render() {
-      const withGuide = settings.withGuide;
+      const { withGuide } = settings;
       const msgLine = wrapTextWithPrefix(
         process.stdout,
         opts.message,
@@ -95,7 +95,7 @@ export async function multiselectLineBreak<T>(opts: MultiselectOpts<T>): Promise
           const prefix = withGuide ? `${styleText('gray', S_BAR)}  ` : '';
           const selectedLabels = this.options
             .filter(({ value }) => selected.includes(value))
-            .map((o) => renderOption(o as MultiselectOption<T>, 'submitted'));
+            .map((o) => renderOption(o, 'submitted'));
           const body =
             selectedLabels.length > 0 ? selectedLabels.join(`\n${prefix}`) : styleText('dim', 'none');
           return `${header}${prefix}${body}`;
@@ -104,7 +104,7 @@ export async function multiselectLineBreak<T>(opts: MultiselectOpts<T>): Promise
         case 'cancel': {
           const cancelledLabels = this.options
             .filter(({ value }) => selected.includes(value))
-            .map((o) => renderOption(o as MultiselectOption<T>, 'cancelled'))
+            .map((o) => renderOption(o, 'cancelled'))
             .join(styleText('dim', ', '));
           if (cancelledLabels.trim() === '') return `${header}${styleText('gray', S_BAR)}`;
           const prefix = withGuide ? `${styleText('gray', S_BAR)}  ` : '';
