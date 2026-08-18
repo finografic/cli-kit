@@ -31,7 +31,7 @@ export interface PromptSelectOpts<T> {
   /** Convert a flag string value to the prompt's return type. Required when Value is non-primitive. */
   fromFlag?: (flagValue: string) => T | undefined;
   message: string;
-  options: { value: T; label: string; hint?: string }[];
+  options: Array<{ value: T; label: string; hint?: string }>;
   default?: T;
   /** When true, always prompt even in yes-mode */
   required?: boolean;
@@ -65,7 +65,7 @@ export interface PromptMultiSelectOpts<T> {
   /** Flag key whose value auto-resolves this prompt (comma-separated, skips showing the prompt) */
   flagKey?: string;
   message: string;
-  options: { value: T; label: string; hint?: string }[];
+  options: Array<{ value: T; label: string; hint?: string }>;
   initialValues?: T[];
   /** When true, at least one option must be selected (passed to clack) */
   minOne?: boolean;
@@ -75,7 +75,7 @@ export interface PromptMultiSelectOpts<T> {
 
 export interface PromptAutocompleteMultiSelectOpts<T> {
   message: string;
-  options: { value: T; label: string; hint?: string }[];
+  options: Array<{ value: T; label: string; hint?: string }>;
   placeholder?: string;
   initialValues?: T[];
   /** When true, always prompt even in yes-mode */
@@ -111,7 +111,7 @@ export function createFlowContext<F extends FlagDefs>(argv: string[], flagDefs: 
 
   let i = 0;
   while (i < argv.length) {
-    const arg = argv[i]!;
+    const arg = argv[i];
 
     if (arg === '--') {
       args.push(...argv.slice(i + 1));
@@ -121,7 +121,7 @@ export function createFlowContext<F extends FlagDefs>(argv: string[], flagDefs: 
     if (arg.startsWith('--')) {
       const key = arg.slice(2);
       const resolvedKey = aliasMap[key] ?? key;
-      const def = flagDefs[resolvedKey] ?? (aliasMap[key] ? flagDefs[aliasMap[key]!] : undefined);
+      const def = flagDefs[resolvedKey] ?? (aliasMap[key] ? flagDefs[aliasMap[key]] : undefined);
 
       if (def?.type === 'boolean') {
         flags[resolvedKey] = true;
@@ -170,8 +170,8 @@ export function createFlowContext<F extends FlagDefs>(argv: string[], flagDefs: 
 
 export async function promptSelect<T>(flow: FlowContext, config: PromptSelectOpts<T>): Promise<T> {
   // Resolution chain: 1. explicit flag (with optional fromFlag resolver)  2. yes-mode default  3. prompt
-  if (config.flagKey && flow.flags[config.flagKey as keyof typeof flow.flags] !== undefined) {
-    const raw = String(flow.flags[config.flagKey as keyof typeof flow.flags]);
+  if (config.flagKey && flow.flags[config.flagKey] !== undefined) {
+    const raw = flow.flags[config.flagKey];
     const resolved = config.fromFlag ? config.fromFlag(raw) : (raw as unknown as T);
     if (resolved !== undefined) return resolved;
     // fromFlag returned undefined → unknown flag value, fall through to prompt
@@ -183,7 +183,7 @@ export async function promptSelect<T>(flow: FlowContext, config: PromptSelectOpt
 
   const result = await clack.select({
     message: config.message,
-    options: config.options as clack.Option<T>[],
+    options: config.options as Array<clack.Option<T>>,
   });
 
   if (clack.isCancel(result)) {
@@ -191,13 +191,13 @@ export async function promptSelect<T>(flow: FlowContext, config: PromptSelectOpt
     process.exit(0);
   }
 
-  return result as T;
+  return result;
 }
 
 export async function promptText(flow: FlowContext, config: PromptTextOpts): Promise<string> {
   // Resolution chain: 1. explicit flag  2. yes-mode default  3. prompt
-  if (config.flagKey && flow.flags[config.flagKey as keyof typeof flow.flags] !== undefined) {
-    const value = String(flow.flags[config.flagKey as keyof typeof flow.flags]);
+  if (config.flagKey && flow.flags[config.flagKey] !== undefined) {
+    const value = flow.flags[config.flagKey];
     if (config.validate) {
       const error = config.validate(value);
       if (error) {
@@ -227,7 +227,7 @@ export async function promptText(flow: FlowContext, config: PromptTextOpts): Pro
     process.exit(0);
   }
 
-  return result as string;
+  return result;
 }
 
 export async function promptConfirm(flow: FlowContext, config: PromptConfirmOpts): Promise<boolean> {
@@ -247,7 +247,7 @@ export async function promptConfirm(flow: FlowContext, config: PromptConfirmOpts
     process.exit(0);
   }
 
-  return result as boolean;
+  return result;
 }
 
 export async function promptMultiSelect<T>(
@@ -255,8 +255,8 @@ export async function promptMultiSelect<T>(
   config: PromptMultiSelectOpts<T>,
 ): Promise<T[]> {
   // Resolution chain: 1. explicit flag  2. yes-mode defaults  3. prompt
-  if (config.flagKey && flow.flags[config.flagKey as keyof typeof flow.flags] !== undefined) {
-    const raw = String(flow.flags[config.flagKey as keyof typeof flow.flags]);
+  if (config.flagKey && flow.flags[config.flagKey] !== undefined) {
+    const raw = flow.flags[config.flagKey];
     return raw.split(',').map((s) => s.trim()) as T[];
   }
 
@@ -266,7 +266,7 @@ export async function promptMultiSelect<T>(
 
   const result = await clack.multiselect({
     message: config.message,
-    options: config.options as clack.Option<T>[],
+    options: config.options as Array<clack.Option<T>>,
     initialValues: config.initialValues,
     required: config.minOne ?? false,
   });
@@ -276,7 +276,7 @@ export async function promptMultiSelect<T>(
     process.exit(0);
   }
 
-  return result as T[];
+  return result;
 }
 
 export async function promptAutocompleteMultiSelect<T>(
@@ -290,7 +290,7 @@ export async function promptAutocompleteMultiSelect<T>(
 
   const result = await clack.autocompleteMultiselect({
     message: config.message,
-    options: config.options as clack.Option<T>[],
+    options: config.options as Array<clack.Option<T>>,
     placeholder: config.placeholder,
     initialValues: config.initialValues,
   });
@@ -300,5 +300,5 @@ export async function promptAutocompleteMultiSelect<T>(
     process.exit(0);
   }
 
-  return result as T[];
+  return result;
 }

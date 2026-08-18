@@ -7,7 +7,7 @@ import process from 'node:process';
  */
 export function sortedRecord(record: Record<string, string>): Record<string, string> {
   const sorted: Record<string, string> = {};
-  for (const k of Object.keys(record).sort()) {
+  for (const k of Object.keys(record).toSorted()) {
     sorted[k] = record[k]!;
   }
   return sorted;

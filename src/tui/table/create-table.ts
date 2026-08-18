@@ -7,7 +7,7 @@ import { computeColumnWidths } from './width.js';
 
 export function createTable<T>(
   data: T[],
-  columnDefs: ColumnDef<T>[],
+  columnDefs: Array<ColumnDef<T>>,
   options: { gap?: number } = {},
 ): TableInstance<T> {
   const gap = options.gap ?? 2;

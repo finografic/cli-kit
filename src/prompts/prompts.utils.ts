@@ -12,13 +12,13 @@ export interface SelectOption<T> {
 
 export interface PromptSelectOpts<T> {
   message: string;
-  options: SelectOption<T>[];
+  options: Array<SelectOption<T>>;
   default?: T;
 }
 
 export interface PromptMultiSelectOpts<T> {
   message: string;
-  options: SelectOption<T>[];
+  options: Array<SelectOption<T>>;
   initialValues?: T[];
   /** When true, at least one option must be selected */
   minOne?: boolean;
@@ -49,7 +49,7 @@ export interface PromptConfirmOpts {
 export function createSelectOptions<T>(
   items: T[],
   toOption: (item: T) => SelectOption<T>,
-): SelectOption<T>[] {
+): Array<SelectOption<T>> {
   return items.map(toOption);
 }
 
@@ -58,19 +58,19 @@ export function createSelectOptions<T>(
 export async function promptSelect<T>(opts: PromptSelectOpts<T>): Promise<T> {
   const result = await clack.select({
     message: opts.message,
-    options: opts.options as clack.Option<T>[],
+    options: opts.options as Array<clack.Option<T>>,
   });
   if (clack.isCancel(result)) {
     clack.cancel('Cancelled.');
     process.exit(0);
   }
-  return result as T;
+  return result;
 }
 
 export async function promptMultiSelect<T>(opts: PromptMultiSelectOpts<T>): Promise<T[]> {
   const result = await clack.multiselect({
     message: opts.message,
-    options: opts.options as clack.Option<T>[],
+    options: opts.options as Array<clack.Option<T>>,
     initialValues: opts.initialValues,
     required: opts.minOne ?? false,
   });
@@ -78,7 +78,7 @@ export async function promptMultiSelect<T>(opts: PromptMultiSelectOpts<T>): Prom
     clack.cancel('Cancelled.');
     process.exit(0);
   }
-  return result as T[];
+  return result;
 }
 
 export async function promptText(opts: PromptTextOpts): Promise<string> {
@@ -96,7 +96,7 @@ export async function promptText(opts: PromptTextOpts): Promise<string> {
     clack.cancel('Cancelled.');
     process.exit(0);
   }
-  return result as string;
+  return result;
 }
 
 export async function promptConfirm(opts: PromptConfirmOpts): Promise<boolean> {
@@ -108,5 +108,5 @@ export async function promptConfirm(opts: PromptConfirmOpts): Promise<boolean> {
     clack.cancel('Cancelled.');
     process.exit(0);
   }
-  return result as boolean;
+  return result;
 }
