@@ -157,5 +157,6 @@ export function createDashboard(opts: {
 
 ## Next
 
+- Fill a text prompt's hint with Tab or Right-arrow — needs a `@clack/core` `TextPrompt` wrapper, not a config option. Building it into `promptText` means consumers inherit it on a version bump. See [TODO_TEXT_PROMPT_HINT_FILL.md](/docs/todo/TODO_TEXT_PROMPT_HINT_FILL.md).
 - Optional: clear remaining oxlint warnings (`typescript/array-type`, unnecessary assertions) in `src/flow`, `src/prompts`, and `src/tui`.
 - See [DONE_UNBLOCK_INSTALL.md](/docs/todo/DONE_UNBLOCK_INSTALL.md) for the install/toolchain unblock.
