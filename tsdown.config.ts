@@ -13,7 +13,6 @@ export default defineConfig({
     'commands': 'src/commands/index.ts',
     'package-manager': 'src/package-manager/index.ts',
     'paths': 'src/paths/index.ts',
-    'xdg': 'src/xdg/index.ts',
   },
   format: ['esm'],
   dts: true,

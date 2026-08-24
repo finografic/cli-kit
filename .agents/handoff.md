@@ -23,12 +23,11 @@ Multi-entrypoint ESM library (tsdown, 9+ subpaths). Each subpath is an independe
 - `/prompts` — thin clack wrapper (no FlowContext), `createSelectOptions`, cancel-safe
 - `/commands` — `RunCommandParams`, `CommandHandler`, `SubcommandHandler` types
 - `/paths` — `tildeify`, `resolveTargetDir`
-- `/xdg` — `getConfigPath`, `getCachePath`, `readJsonc`, `writeJsonc`
 - `/` root — re-exports `commands` types only
 
 ## Stack
 
-TypeScript (strict, ESM, `verbatimModuleSyntax`), pnpm, tsdown. Runtime deps: `@clack/prompts`, `@clack/core`, `diff`, `picocolors`, `strip-ansi`, `jsonc-parser`.
+TypeScript (strict, ESM, `verbatimModuleSyntax`), pnpm, tsdown. Runtime deps: `@clack/prompts`, `@clack/core`, `diff`, `picocolors`, `strip-ansi`.
 
 ## tui Table System
 
@@ -81,7 +80,6 @@ Multi-entrypoint ESM library (tsdown, 9 subpaths). Each subpath is an independen
 - `/prompts` — thin clack wrapper (no FlowContext), `createSelectOptions`, cancel-safe
 - `/commands` — `RunCommandParams`, `CommandHandler`, `SubcommandHandler` types
 - `/paths` — `tildeify`, `resolveTargetDir`
-- `/xdg` — `getConfigPath`, `getCachePath`, `readJsonc`, `writeJsonc`
 - `/` root — re-exports `commands` types only (avoids name conflicts between flow/prompts)
 
 ## Stack
@@ -89,7 +87,7 @@ Multi-entrypoint ESM library (tsdown, 9 subpaths). Each subpath is an independen
 - TypeScript (strict, ESM, `verbatimModuleSyntax`)
 - pnpm
 - tsdown (build → `dist/`)
-- `@clack/prompts` + `@clack/core` 1.2.0, `diff` 8.0.4, `picocolors` 1.1.1, `jsonc-parser` 3.3.1
+- `@clack/prompts` + `@clack/core` 1.2.0, `diff` 8.0.4, `picocolors` 1.1.1
 
 ## Source origins
 
@@ -104,7 +102,7 @@ Multi-entrypoint ESM library (tsdown, 9 subpaths). Each subpath is an independen
 | `prompts`         | New — thin clack wrapper, opts are a subset of flow opts                              |
 | `commands`        | New — `RunCommandParams`, `CommandHandler`, `SubcommandHandler` types                 |
 | `paths`           | New — `tildeify`, `resolveTargetDir` (promoted from per-repo inline copies)           |
-| `xdg`             | New — XDG paths + JSONC I/O (`jsonc-parser`)                                          |
+| `xdg`             | Removed 2026-08-24 — moved to `@finografic/core/xdg`                                  |
 
 ## Key Decisions
 

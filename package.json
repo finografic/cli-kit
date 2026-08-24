@@ -44,7 +44,6 @@
     "./render-help": "./dist/render-help.mjs",
     "./tui": "./dist/tui.mjs",
     "./tui/table": "./dist/tui/table.mjs",
-    "./xdg": "./dist/xdg.mjs",
     "./package.json": "./package.json"
   },
   "scripts": {
@@ -103,7 +102,6 @@
     "@clack/core": "^1.2.0",
     "@clack/prompts": "^1.2.0",
     "diff": "^8.0.4",
-    "jsonc-parser": "^3.3.1",
     "picocolors": "^1.1.1",
     "strip-ansi": "^7.2.0"
   },

@@ -30,8 +30,7 @@
       "paths/*": ["./src/paths/*"],
       "prompts/*": ["./src/prompts/*"],
       "tui/*": ["./src/tui/*"],
-      "types/*": ["./src/types/*"],
-      "xdg/*": ["./src/xdg/*"]
+      "types/*": ["./src/types/*"]
     }
   },
   "include": ["src/**/*"],

@@ -8,12 +8,12 @@ Next steps, recommended additions, and speculative ideas for the kit. Divided in
 
 ## ✅ Shipped — v0.1.0
 
-| Module         | Export(s)                                                  | Notes                                |
-| -------------- | ---------------------------------------------------------- | ------------------------------------ |
-| `/paths`       | `tildeify`, `resolveTargetDir`                             | New subpath                          |
-| `/xdg`         | `getConfigPath`, `getCachePath`, `readJsonc`, `writeJsonc` | New subpath; adds `jsonc-parser` dep |
-| `/render-help` | `renderSection`                                            | Added to existing subpath            |
-| `/flow`        | `requireArg`, `optionalArg`                                | Added to existing subpath            |
+| Module         | Export(s)                                                  | Notes                                                   |
+| -------------- | ---------------------------------------------------------- | ------------------------------------------------------- |
+| `/paths`       | `tildeify`, `resolveTargetDir`                             | New subpath                                             |
+| `/xdg`         | `getConfigPath`, `getCachePath`, `readJsonc`, `writeJsonc` | **Removed in v2.0.0** — moved to `@finografic/core/xdg` |
+| `/render-help` | `renderSection`                                            | Added to existing subpath                               |
+| `/flow`        | `requireArg`, `optionalArg`                                | Added to existing subpath                               |
 
 ## ✅ Shipped — v0.3.x
 
@@ -136,7 +136,7 @@ interface ConfigManager<T> {
 
 **Why it's interesting:** Config management is the most-duplicated non-trivial logic across `gli` and any future config-driven tool. Combining XDG paths + JSONC I/O + Zod validation + versioned migrations into one module eliminates a real class of bugs (schema drift, silent parse failures).
 
-**The trade-off:** Adds `zod` as a runtime dependency of `cli-kit`. Potentially acceptable given `zod` is already in `genx` and `deps-policy`. Worth gating behind its own subpath (`cli-kit/config`) so it doesn't bloat consumers that don't need it.
+**The trade-off:** Adds `zod` as a runtime dependency of `cli-kit`. Potentially acceptable given `zod` is already in `genx` and `deps-policy`. Worth gating behind its own subpath (`cli-kit/config`) so it doesn't bloat consumers that don't need it. It would consume XDG paths and JSONC I/O from `@finografic/core/xdg`, not reimplement them.
 
 ### `cli-kit/tui` — Live dashboard / polling renderer
 
