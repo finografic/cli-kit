@@ -155,6 +155,10 @@ export function createDashboard(opts: {
 
 **The trade-off:** The live-render approach depends on terminal raw mode and ANSI escape sequences — meaningfully different from the one-shot clack flow. It might warrant its own peer dependency or a more opinionated abstraction. Start with extracting `gli`'s implementation verbatim, then generalise from a second consumer.
 
+**The second consumer is identified (2026-08-30):** `genx managed live` — a refreshing table of package-alignment state across managed repos. Same mechanics as `gli live`, different domain. It brings two requirements `gli` does not have: a remembered multi-select of which repos to watch, and a **tiered** refresh, because one of its columns is far more expensive than the others.
+
+Still deliberately blocked until `genx managed live` ships and is in real use. An API drawn from one real consumer and one imagined one gets the seams wrong. Candidate list, trigger conditions and scope guards: [TODO_MANAGED_LIVE_PRIMITIVES.md](/docs/todo/TODO_MANAGED_LIVE_PRIMITIVES.md).
+
 ## Next
 
 - Fill a text prompt's hint with Tab or Right-arrow — needs a `@clack/core` `TextPrompt` wrapper, not a config option. Building it into `promptText` means consumers inherit it on a version bump. See [TODO_TEXT_PROMPT_HINT_FILL.md](/docs/todo/TODO_TEXT_PROMPT_HINT_FILL.md).
